@@ -1,3 +1,7 @@
+# ignore python-created exercise *.tex files
+problems/sea/*.tex
+problems/stea/*.tex
+
 # ignore temp file (like from Excel)
 *~*
 
