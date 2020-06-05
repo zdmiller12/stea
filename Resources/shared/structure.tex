@@ -57,6 +57,14 @@
 %%----------------------------------------------------------------------------------------
 %	LOADING DATA FOR PROBLEMS & SOLUTIONS
 \usepackage{datatool} % I ADDED (for reading csv's)
+%
+%% moving toward
+% \newcommand{\variables}{problems/variables_solved.csv}
+% \IfFileExists{\variables}{\DTLloaddb{variables}{\variables}}{\relax}
+% \newcommand{\V}[1]{\DTLfetch{variables}{ch_pr_var}{#1}{\whichBook}}
+%%
+%%%
+%% soon to be deprecated
 \newcommand{\V}[1]{\DTLfetch{Solutions01}{ch_pr_var}{#1}{\whichBook}} % needs to be renewed every Problems##.tex file for new chapter
 \newcommand{\File}[1]{Problems/Solutions/csvFiles/Solutions#1.csv}
 \IfFileExists{\File{01}}{\DTLloaddb{Solutions01}{\File{01}}}{\relax}
@@ -80,7 +88,8 @@
 \IfFileExists{\File{19}}{\DTLloaddb{Solutions19}{\File{19}}}{\relax}
 \IfFileExists{\File{20}}{\DTLloaddb{Solutions20}{\File{20}}}{\relax}
 \IfFileExists{\File{21}}{\DTLloaddb{Solutions21}{\File{21}}}{\relax}
-
+%%
+%%%
 %%--------------------------------------------------------------------------------------
 %	FONTS
 \usepackage{draftwatermark}
