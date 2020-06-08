@@ -1,4 +1,4 @@
-from qpe.contentHandler import ContentHandler
+from contentHandler import ContentHandler
 
 class MainHandler(ContentHandler):
 
@@ -37,7 +37,10 @@ class MainHandler(ContentHandler):
         """
         Updates the text in the exercise and solution labels.
         
-        Returns nothing.
+        Returns
+        -------
+        None.
+        
         """
         self.label_exercise.setText(self.get_exercise_text(
             self.current_chapter(), self.current_problem(), self.current_book()))
@@ -49,16 +52,39 @@ class MainHandler(ContentHandler):
         """
         Updates the status bar of the main window.
 
-        Returns nothing.
+        Returns
+        -------
+        None.
+        
         """
         self.statusbar.showMessage("Viewing Chapter {:0>2d}: Problem {:0>2d}, from {}".format(
             self.current_chapter(), self.current_problem(), self.current_book()))
+        
+    def show_status_message(self, message):
+        """
+        Update the statusbar with a specific message.
+
+        Parameters
+        ----------
+        message : string
+            The message to show on the statusbar.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.statusbar.showMessage(message)
+        
 
     def update_tables(self):
         """
         Updates the exercise and solution table views to show the variables.
 
-        Returns nothing.
+        Returns
+        -------
+        None.
+        
         """
         self.tableView_variables.clearSpans()
         self.tableView_variables.setModel(self.get_variable_model(

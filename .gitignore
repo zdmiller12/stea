@@ -1,3 +1,6 @@
+# ignore pycache's
+__pycache__
+
 # ignore python-created exercise *.tex files
 problems/sea/*.tex
 problems/stea/*.tex

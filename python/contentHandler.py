@@ -1,20 +1,30 @@
+import glob
+import os
 import pandas as pd
-import os, glob
 import re
 
-from qpe.pandasModel import PandasModel
+from pandasModel import PandasModel
+from solveExercises import SolveExercises
 
-class ContentHandler:
+class ContentHandler(SolveExercises):
 
     def __init__(self, parent=None):
+        SolveExercises.__init__(self)
+        
         self.problems_filenames        = "problems*.tex"
         self.variables_filename        = "variables.csv"
         self.variables_solved_filename = "variables_solved.csv"
-        self.template_path = os.path.join(self.qpeDirectory, "..", "stea", "problems")
+        self.template_path = os.path.join(self.qpeDirectory, "..", "problems")
 
-        self.units_header    = "units"
-        self.variable_header = "ch_pr_var"
-        self.regex_variable  = re.compile("\\\\V{"r'\S*'"}")
+        self.regex_variable   = re.compile("\\\\V{"r'\S*'"}")
+        self.units_header     = "units"
+        self.variable_header  = "ch_pr_var"
+        self.excel_sol_header = "excel_solution"
+        self.visible_columns  = [
+            self.variable_header, 
+            self.units_header, 
+            self.excel_sol_header]
+        
         self.df = pd.read_csv(os.path.join(self.template_path, self.variables_filename))
 
         self.exercise_text = {}
@@ -88,7 +98,7 @@ class ContentHandler:
             Relevant variabes, with columns [ch_pr_var, {book}, units, details]
         """
         df_variables = self.df[self.df[self.variable_header].str.contains(self.get_problem_formatted(chapter, problem))]
-        df_columns   = df_variables[[self.variable_header, book, self.units_header]]
+        df_columns   = df_variables.loc[:, [book] + self.visible_columns]
         return PandasModel(df_columns)
             
     def get_problem_formatted(self, chapter, problem, book=None):
@@ -166,8 +176,8 @@ class ContentHandler:
         regex_solution      = re.compile("(?<=    \\\\begin\{solution\})"r'.*?'"(?=\\\\end\{solution\})", re.DOTALL)
 
         # for problems_file in glob.glob(os.path.join(self.template_path, self.problems_filenames))
-        for problems_file in glob.glob(os.path.join(self.template_path, "problems08.tex")):
-            with open(problems_file, "r", encoding="utf8") as file:
+        for exercise_file in glob.glob(os.path.join(self.template_path, "problems08.tex")):
+            with open(exercise_file, "r", encoding="utf8") as file:
                 for ex in [ex for ex in re.findall(regex_exercise_full, file.read())]:
                     try:
                         problem_tag = self.get_problem_tag_from_label(ex)
