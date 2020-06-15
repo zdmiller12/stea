@@ -1,36 +1,40 @@
 import glob
 import os
-import pandas as pd
 import re
 
+import pandas as pd
+
 from pandasModel import PandasModel
-from solveExercises import SolveExercises
+from exerciseSolver import ExerciseSolver
 
-class ContentHandler(SolveExercises):
 
-    def __init__(self, parent=None):
-        SolveExercises.__init__(self)
-        
+class ContentHandler:
+    def __init__(self, parent=None):        
         self.problems_filenames        = "problems*.tex"
         self.variables_filename        = "variables.csv"
         self.variables_solved_filename = "variables_solved.csv"
-        self.template_path = os.path.join(self.qpeDirectory, "..", "problems")
+        self.template_path = os.path.join(self.qpe_directory, "..", "problems")
 
-        self.regex_variable   = re.compile("\\\\V{"r'\S*'"}")
-        self.units_header     = "units"
-        self.variable_header  = "ch_pr_var"
-        self.excel_sol_header = "excel_solution"
-        self.visible_columns  = [
-            self.variable_header, 
-            self.units_header, 
-            self.excel_sol_header]
+        self.excel_sol_header  = "excel_solution"
+        self.latex_header      = "latex_{}"
+        self.manual_sol_header = "igps_solution"
+        self.units_header      = "units"
+        self.variable_header   = "ch_pr_var"
+        self.visible_columns   = [
+            self.variable_header,
+            self.excel_sol_header,
+            self.manual_sol_header
+        ]
         
         self.df = pd.read_csv(os.path.join(self.template_path, self.variables_filename))
+        self.exercise_solver = ExerciseSolver(
+            dataFrame=self.df, latex_header=self.latex_header, 
+            units_header=self.units_header, variable_header=self.variable_header)
 
-        self.exercise_text = {}
-        self.solution_text = {}
+        self.regex_variable = re.compile("\\\\V{"r'\S*'"}")
+        self.exercise_text  = {}
+        self.solution_text  = {}
         self.set_texts()
-
 
     def get_exercise_text(self, chapter, problem, book):
         """
@@ -39,14 +43,15 @@ class ContentHandler(SolveExercises):
         Returns
         -------
         string
-            The exercise text, identified using regex from the latex files.
+            The exercise text, identified using regex from the *.tex files.
+        
         """
         try:
             return re.sub(
                 self.regex_variable, 
                 lambda match: self.replace_variable(match.group(), book), 
                 self.exercise_text[self.get_problem_formatted(chapter, problem)])
-
+        
         except Exception as e:
             error = "Exercise {:0>2d}.{:0>2d} is not available.\n{}".format(chapter, problem, e)
             print(error)
@@ -60,6 +65,7 @@ class ContentHandler(SolveExercises):
         -------
         string
             The solution text, identified using regex from the latex files.
+        
         """
         try:
             return re.sub(
@@ -72,17 +78,42 @@ class ContentHandler(SolveExercises):
             print(error)
             return error
 
+    def solve_exercises(self):
+        """
+        Uses the exerciseSolver to solve exercises and return feedback.
+
+        Returns
+        -------
+        feedback : string
+            Exercise solution status.
+
+        """
+        self.df, feedback = self.exercise_solver.solve_exercises()
+        return feedback
+        
+    def save_exercises(self):
+        """
+        Saves the calculated variables to the solved CSV file and returns feedback.
+
+        Returns
+        -------
+        string
+            Solved CSV file save status.
+
+        """
+        return self.exercise_solver.save()
+
     def replace_variable(self, string, book):
         """
         Converts the input variable string into the appropriate value based on the book arg.
-        Replace - with _ because _ show up dumb in TexStudio.
 
         Returns
         -------
         string
             The variable value, based on book, unless exception, then just return variable tag string.
+        
         """
-        variable = string[3: -1].replace("-", "_")
+        variable = string[3: -1]
         try:
             return str(self.df.loc[self.df[self.variable_header] == variable, book].iloc[0])
         except:
@@ -94,11 +125,13 @@ class ContentHandler(SolveExercises):
 
         Returns
         -------
-        pd.DataFrame
-            Relevant variabes, with columns [ch_pr_var, {book}, units, details]
+        pandas.DataFrame
+            Relevant variabes, designated by self.visible_columns.
+        
         """
-        df_variables = self.df[self.df[self.variable_header].str.contains(self.get_problem_formatted(chapter, problem))]
-        df_columns   = df_variables.loc[:, [book] + self.visible_columns]
+        df_variables = self.df[self.df[self.variable_header].str.contains(
+            self.get_problem_formatted(chapter, problem))]
+        df_columns   = df_variables.loc[:, [self.latex_header.format(book)] + self.visible_columns]
         return PandasModel(df_columns)
             
     def get_problem_formatted(self, chapter, problem, book=None):
@@ -110,11 +143,12 @@ class ContentHandler(SolveExercises):
         string
             The standard tag used to identify exercises.
             Format of "CH_PR" or "CH_PR_{SEA/STEA}" depending on whether or not book is given.
+        
         """
         if book is not None:
-            return "{:0>2d}_{:0>2d}_{}".format(chapter, problem, book)
+            return "{:0>2d}-{:0>2d}-{}".format(chapter, problem, book)
         else:
-            return "{:0>2d}_{:0>2d}".format(chapter, problem)
+            return "{:0>2d}-{:0>2d}".format(chapter, problem)
 
     def get_problem_tag_from_label(self, exercise):
         """
@@ -124,9 +158,10 @@ class ContentHandler(SolveExercises):
         -------
         string
             The standard tag used to identify exercises.
+        
         """
         chapter, problem = self.read_label(exercise)
-        return "{}_{}".format(chapter, problem)
+        return "{}-{}".format(chapter, problem)
 
     def read_label(self, exercise):
         """
@@ -136,6 +171,7 @@ class ContentHandler(SolveExercises):
         -------
         string, string
             Chapter, Problem 
+        
         """
         regex_exercise_label = re.compile("(?<=\\\\label{)"r'\S*'"(?=})")
         exercise_label       = re.findall(regex_exercise_label, exercise)
@@ -146,30 +182,14 @@ class ContentHandler(SolveExercises):
         exercise_label = exercise_label[0]
         return exercise_label[4:6], exercise_label[7:9]
 
-
-
-    def get_variable_value_with_units(self, value, units):
-        """
-        Formats the variable with units.
-
-        Returns
-        -------
-        string
-            The variable, formatted with appropriate units.
-        """
-        if units[0] in ["$"]:
-            return "${:,}".format(value)
-        elif units[0] in ["%"]:
-            return "{:.2f}%".format(value)
-        elif units[0] in ["periods"]:
-            return "{} {}".format(value, units[1])
-
-
     def set_texts(self):
         """
         Populate the exercise and solution dictionaries with text per problem tag.
 
-        Returns nothing.
+        Returns
+        -------
+        None.
+        
         """
         regex_exercise_full = re.compile("    \\\\begin\{exercise\}"r'.*?'"\\\\end\{solution\}", re.DOTALL)
         regex_exercise      = re.compile("(?<=    \\\\begin\{exercise\})"r'.*?'"(?=\\\\end\{exercise\})", re.DOTALL)
@@ -185,4 +205,4 @@ class ContentHandler(SolveExercises):
                         self.solution_text[problem_tag] = re.findall(regex_solution, ex)[0]
                     except Exception as e:
                         print("Error reading problem from file {}.\n{}".format(exercise_file, e))
-                        continue
+                        continue         

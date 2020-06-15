@@ -44,9 +44,11 @@ class MainHandler(ContentHandler):
         """
         self.label_exercise.setText(self.get_exercise_text(
             self.current_chapter(), self.current_problem(), self.current_book()))
-
+        
         self.label_solution.setText(self.get_solution_text(
             self.current_chapter(), self.current_problem(), self.current_book()))
+        
+        self.update_statusbar()
 
     def update_statusbar(self):
         """
@@ -57,7 +59,7 @@ class MainHandler(ContentHandler):
         None.
         
         """
-        self.statusbar.showMessage("Viewing Chapter {:0>2d}: Problem {:0>2d}, from {}".format(
+        self.statusbar.showMessage("Viewing Exercise {:0>2d}.{:0>2d} from {}".format(
             self.current_chapter(), self.current_problem(), self.current_book()))
         
     def show_status_message(self, message):
@@ -74,6 +76,7 @@ class MainHandler(ContentHandler):
         None.
 
         """
+        print(message)
         self.statusbar.showMessage(message)
         
 
@@ -89,6 +92,5 @@ class MainHandler(ContentHandler):
         self.tableView_variables.clearSpans()
         self.tableView_variables.setModel(self.get_variable_model(
             self.current_chapter(), self.current_problem(), self.current_book()))
-
         self.tableView_variables.resizeColumnsToContents()
         

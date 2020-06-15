@@ -15,13 +15,17 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%
+\newcommand{\whichBook}{SEA} % {STEA} or {SEA} - used to switch between solutions
+%%%
+
 \usepackage{todonotes}
 
 %%----------------------------------------------------------------------------------------
 %	VARIOUS REQUIRED PACKAGES AND CONFIGURATIONS
 \usepackage[top=3cm,bottom=3cm,left=3cm,right=3cm,headsep=10pt,a4paper]{geometry} % Page margins
 \usepackage{graphicx} % Required for including pictures
-\graphicspath{{Resources/media/pictures/}{Resources/media/figures/}{Resources/media/pictures/chapterHeadings/}} % Specifies the directory where pictures are stored
+\graphicspath{{resources/media/pictures/}{resources/media/figures/}{resources/media/pictures/chapterHeadings/}} % Specifies the directory where pictures are stored
 \usepackage{lipsum} % Inserts dummy text
 \usepackage{tikz} % Required for drawing custom shapes
 \usepackage[english]{babel} % English language/hyphenation
@@ -61,35 +65,28 @@
 %% moving toward
 \newcommand{\variables}{problems/variables_solved.csv}
 \IfFileExists{\variables}{\DTLloaddb{variables}{\variables}}{\relax}
-\newcommand{\V}[1]{\DTLfetch{variables}{ch_pr_var}{#1}{\whichBook}}
-%%
-%%%
-%% soon to be deprecated
-%\newcommand{\V}[1]{\DTLfetch{Solutions01}{ch_pr_var}{#1}{\whichBook}} % needs to be renewed every Problems##.tex file for new chapter
-%\newcommand{\File}[1]{Problems/Solutions/csvFiles/Solutions#1.csv}
-%\IfFileExists{\File{01}}{\DTLloaddb{Solutions01}{\File{01}}}{\relax}
-%\IfFileExists{\File{02}}{\DTLloaddb{Solutions02}{\File{02}}}{\relax}
-%\IfFileExists{\File{03}}{\DTLloaddb{Solutions03}{\File{03}}}{\relax}
-%\IfFileExists{\File{04}}{\DTLloaddb{Solutions04}{\File{04}}}{\relax}
-%\IfFileExists{\File{05}}{\DTLloaddb{Solutions05}{\File{05}}}{\relax}
-%\IfFileExists{\File{06}}{\DTLloaddb{Solutions06}{\File{06}}}{\relax}
-%\IfFileExists{\File{07}}{\DTLloaddb{Solutions07}{\File{07}}}{\relax}
-%\IfFileExists{\File{08}}{\DTLloaddb{Solutions08}{\File{08}}}{\relax}
-%\IfFileExists{\File{09}}{\DTLloaddb{Solutions09}{\File{09}}}{\relax}
-%\IfFileExists{\File{10}}{\DTLloaddb{Solutions10}{\File{10}}}{\relax}
-%\IfFileExists{\File{11}}{\DTLloaddb{Solutions11}{\File{11}}}{\relax}
-%\IfFileExists{\File{12}}{\DTLloaddb{Solutions12}{\File{12}}}{\relax}
-%\IfFileExists{\File{13}}{\DTLloaddb{Solutions13}{\File{13}}}{\relax}
-%\IfFileExists{\File{14}}{\DTLloaddb{Solutions14}{\File{14}}}{\relax}
-%\IfFileExists{\File{15}}{\DTLloaddb{Solutions15}{\File{15}}}{\relax}
-%\IfFileExists{\File{16}}{\DTLloaddb{Solutions16}{\File{16}}}{\relax}
-%\IfFileExists{\File{17}}{\DTLloaddb{Solutions17}{\File{17}}}{\relax}
-%\IfFileExists{\File{18}}{\DTLloaddb{Solutions18}{\File{18}}}{\relax}
-%\IfFileExists{\File{19}}{\DTLloaddb{Solutions19}{\File{19}}}{\relax}
-%\IfFileExists{\File{20}}{\DTLloaddb{Solutions20}{\File{20}}}{\relax}
-%\IfFileExists{\File{21}}{\DTLloaddb{Solutions21}{\File{21}}}{\relax}
-%%
-%%%
+
+%%% https://tex.stackexchange.com/questions/53323/how-to-check-if-a-datatool-db-has-an-existing-member/53395#53395
+%%% Werner's patch
+\usepackage{etoolbox}
+\makeatletter
+\let\ErrorFreeDTLgetlocation\DTLgetlocation
+\patchcmd{\ErrorFreeDTLgetlocation}% <cmd>
+  {\PackageError}% <search>
+  {\@gobbletwo}% <replace>
+  {}{}% <success><failure>
+\def\@@dtlnovalue{\@dtlnovalue} 
+
+\newcommand*{\V}[1]{%
+  \ErrorFreeDTLgetlocation{\RowIndex}{\ColIndex}{variables}{#1}%
+  \ifx\RowIndex\@@dtlnovalue
+    =>var #1 not found<=
+  \else
+    \DTLfetch{variables}{ch_pr_var}{#1}{latex_\whichBook}
+  \fi
+}
+\makeatother
+
 %%--------------------------------------------------------------------------------------
 %	FONTS
 \usepackage{draftwatermark}
@@ -102,8 +99,7 @@
 \usepackage[utf8]{inputenc} % Required for including letters with accents
 \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
 \usepackage{dirtytalk} % I ADDED
-\newcommand{\RomanNumeralCaps}[1]
-    {\MakeUppercase{\romannumeral #1}} % I ADDED 
+\newcommand{\RomanNumeralCaps}[1]{\MakeUppercase{\romannumeral #1}} % I ADDED 
     
 %%----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY AND INDEX

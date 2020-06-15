@@ -5,22 +5,21 @@ Version
 Contact: zdmiller12@gmail.com
 """ 
 
-import os, sys
+import os
+import sys
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from mainHandler import MainHandler
-from solveExercises import SolveExercises
 
 qtCreatorFile = os.path.join(".", "resource", "qpe_mainWindow.ui")
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class QPE(QMainWindow, Ui_MainWindow, MainHandler):
-    
     def __init__(self, parent=None):
         self.books  = ["SEA", "STEA"]
-        self.qpeDirectory = os.getcwd()
+        self.qpe_directory = os.path.dirname(os.path.realpath(__file__))
         QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         MainHandler.__init__(self)
@@ -33,6 +32,7 @@ class QPE(QMainWindow, Ui_MainWindow, MainHandler):
         #
         #
         self.comboBox_book.currentTextChanged.connect(self.dialog_update_SLOT)
+        self.pushButton_save.clicked.connect(self.save_exercises_SLOT)
         self.pushButton_solve.clicked.connect(self.solve_exercises_SLOT)
         self.spinBox_chapter.valueChanged.connect(self.dialog_update_SLOT)
         self.spinBox_problem.valueChanged.connect(self.dialog_update_SLOT)
@@ -43,15 +43,17 @@ class QPE(QMainWindow, Ui_MainWindow, MainHandler):
     ###
     ##    SLOTS
     #
-    def solve_exercises_SLOT(self):
-        self.solve_exercises()
-        self.dialog_update_SLOT()
-        
     def dialog_update_SLOT(self):
         self.update_tables()
         self.update_labels()
-        self.update_statusbar()
-    
+        
+    def save_exercises_SLOT(self):
+        self.show_status_message(self.save_exercises())
+
+    def solve_exercises_SLOT(self):
+        self.show_status_message(self.solve_exercises())
+        self.dialog_update_SLOT()
+
 
 if __name__ == '__main__':
     # # for windows screen

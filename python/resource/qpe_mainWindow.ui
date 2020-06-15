@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="3" column="0" colspan="2">
+    <item row="4" column="0" colspan="2">
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -25,7 +25,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QGroupBox" name="groupBox_solution">
       <property name="title">
        <string>SOLUTION</string>
@@ -44,7 +44,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QGroupBox" name="groupBox_problem">
       <property name="title">
        <string>PROBLEM</string>
@@ -63,7 +63,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="1" rowspan="2">
+    <item row="2" column="1" rowspan="2">
      <widget class="QGroupBox" name="groupBox_variables">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -83,13 +83,6 @@
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QTableView" name="tableView_variables"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="pushButton_solve">
-         <property name="text">
-          <string>Solve</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -167,6 +160,55 @@
          </property>
          <property name="maximum">
           <number>19</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>99</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>OPERATIONS</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Solve for unknown variables.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_solve">
+         <property name="text">
+          <string>Solve</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_save">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Save variables to solved CSV file.</string>
          </property>
         </widget>
        </item>
