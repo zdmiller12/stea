@@ -1,3 +1,6 @@
+# ignore user-specific project stuff
+.spyproject
+
 # ignore pycache's
 __pycache__
 
